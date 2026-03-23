@@ -8,6 +8,7 @@ import subprocess
 import json
 import threading
 import time
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -32,14 +33,20 @@ def run_monitor():
     """执行数据刷新"""
     global last_refresh
     try:
-        subprocess.run(
+        # 使用 python3 命令，避免 sys.executable 路径问题
+        result = subprocess.run(
             ["python3", str(MONITOR_SCRIPT)],
             cwd=str(BASE_DIR),
             capture_output=True,
-            timeout=30
+            text=True,
+            timeout=60
         )
-        last_refresh = time.time()
-        return True
+        if result.returncode == 0:
+            last_refresh = time.time()
+            return True
+        else:
+            print(f"刷新失败: {result.stderr}")
+            return False
     except Exception as e:
         print(f"刷新失败: {e}")
         return False
@@ -126,7 +133,11 @@ def main():
     print(f"\n🦞 Agent Monitor Server 启动...")
     print(f"📍 访问地址: http://localhost:{port}")
     print(f"⚡ 网页请求时自动刷新数据（最小间隔 {refresh_interval}秒）")
-    print(f"\n按 Ctrl+C 停止\n")
+    
+    # 启动时立即刷新数据
+    print(f"🔄 初始化数据...")
+    run_monitor()
+    print(f"✅ 数据已就绪\n按 Ctrl+C 停止\n")
     
     server = HTTPServer((host, port), MonitorHandler)
     try:

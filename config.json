@@ -7,7 +7,9 @@
     "learning-shrimp": {"name": "学习虾", "emoji": "📚", "model": "Kimi-K2.5", "is_primary": false},
     "business-shrimp": {"name": "商业虾", "emoji": "💼", "model": "Kimi-K2-Thinking", "is_primary": false},
     "coding-shrimp": {"name": "编程虾", "emoji": "💻", "model": "Qwen3-Coder-Next", "is_primary": false},
-    "xianyu-shrimp": {"name": "闲鱼虾", "emoji": "🔍", "model": "Qwen3.5-Plus", "is_primary": false}
+    "xianyu-shrimp": {"name": "闲鱼虾", "emoji": "🔍", "model": "Qwen3.5-Plus", "is_primary": false},
+    "image-shrimp": {"name": "画图虾", "emoji": "🎨", "model": "Qwen3.5-Plus", "is_primary": false},
+    "testing-shrimp": {"name": "测试虾", "emoji": "🧪", "model": "Qwen3.5-Plus", "is_primary": false}
   },
   "skill_agents": {
     "trading-agents": "trading-shrimp",

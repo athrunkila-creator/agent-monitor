@@ -343,6 +343,33 @@
             flex-shrink: 0;
         }
         
+        .toggle-tasks {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #aaa;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-top: 8px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        
+        .toggle-tasks:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        
+        .more-tasks .session-item {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         /* 刷新按钮 */
         .refresh-btn {
             position: fixed;
@@ -521,7 +548,7 @@
             <button class="sponsor-close" onclick="hideSponsor()">✕</button>
             <h2>☕ 请作者喝杯咖啡</h2>
             <p class="sponsor-desc">如果你觉得这个工具有用，欢迎赞助支持持续维护！</p>
-            <img src="sponsor-wechat.jpg" alt="微信赞赏码" class="sponsor-qr">
+            <img id="sponsorQr" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="sponsor-wechat.jpg" alt="微信赞赏码" class="sponsor-qr">
         </div>
     </div>
     
@@ -612,6 +639,12 @@
     
     <script>
         function showSponsor() {
+            // 延迟加载赞助二维码图片
+            const qrImg = document.getElementById('sponsorQr');
+            if (qrImg && qrImg.dataset.src) {
+                qrImg.src = qrImg.dataset.src;
+                qrImg.removeAttribute('data-src');
+            }
             document.getElementById('sponsorModal').classList.add('show');
         }
         
@@ -767,18 +800,44 @@
                         </div>
                     </div>
                     ${agent.tasks && agent.tasks.length > 0 ? `
-                        <div class="sessions-list">
+                        <div class="sessions-list" id="tasks-${agent.id}">
                             <div class="sessions-title">待处理任务 (${agent.tasks.length})</div>
                             ${agent.tasks.slice(0, 3).map(t => `
                                 <div class="session-item">
                                     <span class="session-name">${t.name}</span>
-                                    <span class="session-time">${t.next_run || ''}</span>
+                                    <span class="session-time">${t.next_run || t.schedule || ''}</span>
                                 </div>
                             `).join('')}
+                            ${agent.tasks.length > 3 ? `
+                                <div class="more-tasks" style="display:none;">
+                                    ${agent.tasks.slice(3).map(t => `
+                                        <div class="session-item">
+                                            <span class="session-name">${t.name}</span>
+                                            <span class="session-time">${t.next_run || t.schedule || ''}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <button class="toggle-tasks" onclick="toggleTasks('${agent.id}')">显示更多 (${agent.tasks.length - 3})</button>
+                            ` : ''}
                         </div>
                     ` : ''}
                 </div>
             `}).join('');
+        }
+        
+        function toggleTasks(agentId) {
+            const container = document.getElementById(`tasks-${agentId}`);
+            const moreDiv = container.querySelector('.more-tasks');
+            const btn = container.querySelector('.toggle-tasks');
+            
+            if (moreDiv.style.display === 'none') {
+                moreDiv.style.display = 'block';
+                btn.textContent = '收起';
+            } else {
+                moreDiv.style.display = 'none';
+                const hiddenCount = container.querySelectorAll('.more-tasks .session-item').length;
+                btn.textContent = `显示更多 (${hiddenCount})`;
+            }
         }
         
         async function refreshData() {
