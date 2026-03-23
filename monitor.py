@@ -15,16 +15,86 @@ DATA_DIR.mkdir(exist_ok=True)
 
 # 配置文件路径
 CONFIG_FILE = Path(__file__).parent / "config.json"
+AGENTS_DIR = Path.home() / ".openclaw" / "agents"
+
+# 默认 Agent 名称映射（用于自动检测时赋予友好名称）
+DEFAULT_AGENT_NAMES = {
+    "main": {"name": "小龙虾", "emoji": "🦞", "is_primary": True},
+    "trading-shrimp": {"name": "交易虾", "emoji": "📈"},
+    "news-shrimp": {"name": "新闻虾", "emoji": "📰"},
+    "research-shrimp": {"name": "行研虾", "emoji": "📊"},
+    "learning-shrimp": {"name": "学习虾", "emoji": "📚"},
+    "business-shrimp": {"name": "商业虾", "emoji": "💼"},
+    "coding-shrimp": {"name": "编程虾", "emoji": "💻"},
+    "xianyu-shrimp": {"name": "闲鱼虾", "emoji": "🔍"},
+    "image-shrimp": {"name": "画图虾", "emoji": "🎨"},
+    "testing-shrimp": {"name": "测试虾", "emoji": "🧪"},
+}
+
+def detect_agents():
+    """自动检测用户的 Agent 目录，返回实际存在的 Agent 列表"""
+    agents = {}
+    
+    if not AGENTS_DIR.exists():
+        return agents
+    
+    # 扫描 agents 目录
+    for agent_dir in AGENTS_DIR.iterdir():
+        if not agent_dir.is_dir():
+            continue
+        
+        agent_id = agent_dir.name
+        
+        # 检查是否有 sessions 目录（确认是有效的 Agent）
+        sessions_dir = agent_dir / "sessions"
+        if not sessions_dir.exists():
+            continue
+        
+        # 使用默认名称或生成名称
+        if agent_id in DEFAULT_AGENT_NAMES:
+            agents[agent_id] = DEFAULT_AGENT_NAMES[agent_id].copy()
+        else:
+            # 自动生成名称（从目录名生成）
+            name = agent_id.replace("-", " ").replace("_", " ").title()
+            agents[agent_id] = {"name": name, "emoji": "🤖"}
+    
+    return agents
 
 def load_config():
-    """加载配置文件"""
+    """加载配置文件，自动检测并更新 Agent 列表"""
+    config = {}
     if CONFIG_FILE.exists():
         try:
             with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                config = json.load(f)
         except:
             pass
-    return {}
+    
+    # 自动检测 Agent
+    detected_agents = detect_agents()
+    
+    # 如果检测到的 Agent 与配置不同，更新配置
+    if detected_agents:
+        existing_agents = config.get("agents", {})
+        
+        # 添加新检测到的 Agent
+        for agent_id, agent_info in detected_agents.items():
+            if agent_id not in existing_agents:
+                existing_agents[agent_id] = agent_info
+        
+        # 移除不存在的 Agent（可选，保留配置中的 Agent 以便历史数据）
+        # 这里不删除，保留用户的配置
+        
+        config["agents"] = existing_agents
+        
+        # 保存更新后的配置
+        try:
+            with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
+        except:
+            pass
+    
+    return config
 
 # 加载配置
 CONFIG = load_config()
@@ -384,9 +454,9 @@ def analyze_agents(sessions, cron_jobs, subagents, target_date: str = None):
     for agent_id, config in AGENTS_CONFIG.items():
         agents[agent_id] = {
             "id": agent_id,
-            "name": config["name"],
-            "emoji": config["emoji"],
-            "model": config["model"],
+            "name": config.get("name", agent_id),
+            "emoji": config.get("emoji", "🤖"),
+            "model": config.get("model", "unknown"),
             "status": "idle",
             "sessions": 0,
             "last_activity": None,

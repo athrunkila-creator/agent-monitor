@@ -1,15 +1,62 @@
 {
   "agents": {
-    "main": {"name": "小龙虾", "emoji": "🦞", "model": "GLM-5", "is_primary": true},
-    "trading-shrimp": {"name": "交易虾", "emoji": "📈", "model": "Qwen3-Max", "is_primary": false},
-    "news-shrimp": {"name": "新闻虾", "emoji": "📰", "model": "Qwen3.5-Plus", "is_primary": false},
-    "research-shrimp": {"name": "行研虾", "emoji": "📊", "model": "Kimi-K2-Thinking", "is_primary": false},
-    "learning-shrimp": {"name": "学习虾", "emoji": "📚", "model": "Kimi-K2.5", "is_primary": false},
-    "business-shrimp": {"name": "商业虾", "emoji": "💼", "model": "Kimi-K2-Thinking", "is_primary": false},
-    "coding-shrimp": {"name": "编程虾", "emoji": "💻", "model": "Qwen3-Coder-Next", "is_primary": false},
-    "xianyu-shrimp": {"name": "闲鱼虾", "emoji": "🔍", "model": "Qwen3.5-Plus", "is_primary": false},
-    "image-shrimp": {"name": "画图虾", "emoji": "🎨", "model": "Qwen3.5-Plus", "is_primary": false},
-    "testing-shrimp": {"name": "测试虾", "emoji": "🧪", "model": "Qwen3.5-Plus", "is_primary": false}
+    "agent-5": {
+      "name": "Agent 5",
+      "emoji": "🤖"
+    },
+    "agent-2": {
+      "name": "Agent 2",
+      "emoji": "🤖"
+    },
+    "coding-shrimp": {
+      "name": "编程虾",
+      "emoji": "💻"
+    },
+    "agent-3": {
+      "name": "Agent 3",
+      "emoji": "🤖"
+    },
+    "agent-4": {
+      "name": "Agent 4",
+      "emoji": "🤖"
+    },
+    "learning-shrimp": {
+      "name": "学习虾",
+      "emoji": "📚"
+    },
+    "business-shrimp": {
+      "name": "商业虾",
+      "emoji": "💼"
+    },
+    "image-shrimp": {
+      "name": "画图虾",
+      "emoji": "🎨"
+    },
+    "agent": {
+      "name": "Agent",
+      "emoji": "🤖"
+    },
+    "testing-shrimp": {
+      "name": "测试虾",
+      "emoji": "🧪"
+    },
+    "trading-shrimp": {
+      "name": "交易虾",
+      "emoji": "📈"
+    },
+    "research-shrimp": {
+      "name": "行研虾",
+      "emoji": "📊"
+    },
+    "main": {
+      "name": "小龙虾",
+      "emoji": "🦞",
+      "is_primary": true
+    },
+    "news-shrimp": {
+      "name": "新闻虾",
+      "emoji": "📰"
+    }
   },
   "skill_agents": {
     "trading-agents": "trading-shrimp",
@@ -23,11 +70,14 @@
     "max_user_message_length": 150,
     "max_tool_names": 5,
     "session_active_minutes": 10,
-    "task_active_minutes": 10
+    "task_active_minutes": 10,
+    "auto_detect_agents": true
   },
   "alerts": {
     "enabled": true,
-    "channels": ["feishu"],
+    "channels": [
+      "feishu"
+    ],
     "feishu_webhook": "",
     "email_to": "",
     "email_from": "",
@@ -35,10 +85,24 @@
     "smtp_password": "",
     "webhook_url": "",
     "rules": {
-      "agent_error": {"enabled": true, "severity": "high"},
-      "cron_failed": {"enabled": true, "severity": "high"},
-      "token_high": {"enabled": true, "threshold": 100000, "severity": "medium"},
-      "agent_idle_long": {"enabled": false, "threshold_hours": 24, "severity": "low"}
+      "agent_error": {
+        "enabled": true,
+        "severity": "high"
+      },
+      "cron_failed": {
+        "enabled": true,
+        "severity": "high"
+      },
+      "token_high": {
+        "enabled": true,
+        "threshold": 100000,
+        "severity": "medium"
+      },
+      "agent_idle_long": {
+        "enabled": false,
+        "threshold_hours": 24,
+        "severity": "low"
+      }
     }
   },
   "export": {
