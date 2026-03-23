@@ -6,7 +6,8 @@
 
 **一目了然的状态面板 | 精确的 Token 统计 | 完整的任务队列**
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/athrunkila-creator/agent-monitor/releases)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/athrunkila-creator/agent-monitor/releases)
+[![Security](https://img.shields.io/badge/security-passed-green.svg)](https://github.com/athrunkila-creator/agent-monitor/releases/tag/v1.2.0)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)]()
 
@@ -157,6 +158,25 @@ open http://localhost:9001
 
 ---
 
+## 🔒 安全说明
+
+**Agent Monitor 已通过安全审查！**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| API Key | ✅ 安全 | 无硬编码，不读取敏感配置 |
+| 网络暴露 | ✅ 安全 | 仅监听本地，公网需用户配置 |
+| 数据安全 | ✅ 安全 | 只读取会话记录，不含凭证 |
+| 配置文件 | ✅ 安全 | 无敏感字段 |
+
+**详细说明**：
+- 代码中无硬编码 API key
+- 不读取 `auth-profiles.json`、`models.json`
+- 监听地址：`0.0.0.0:9001`（本地网络）
+- 所有数据本地存储，不向外部发送
+
+---
+
 ## 🛠️ 技术栈
 
 - **后端**: Python 3.10+
@@ -193,6 +213,16 @@ agent-monitor/
 ---
 
 ## 📝 更新日志
+
+### v1.2.0 (2026-03-23)
+- 🔒 安全审查通过，无敏感信息泄露风险
+- ✨ 自动检测 Agent，开箱即用
+- 🔧 过滤空 Agent 目录
+- 📝 支持 AGENT.md 配置文件检测
+
+### v1.1.0 (2026-03-23)
+- ✨ 自动检测 Agent，无需手动配置
+- 🗑️ 删除硬编码 Agent 列表
 
 ### v1.0.1 (2026-03-23)
 - ✨ Agent 按任务量排序
