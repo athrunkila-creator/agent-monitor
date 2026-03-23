@@ -1,0 +1,49 @@
+{
+  "agents": {
+    "main": {"name": "小龙虾", "emoji": "🦞", "model": "GLM-5", "is_primary": true},
+    "trading-shrimp": {"name": "交易虾", "emoji": "📈", "model": "Qwen3-Max", "is_primary": false},
+    "news-shrimp": {"name": "新闻虾", "emoji": "📰", "model": "Qwen3.5-Plus", "is_primary": false},
+    "research-shrimp": {"name": "行研虾", "emoji": "📊", "model": "Kimi-K2-Thinking", "is_primary": false},
+    "learning-shrimp": {"name": "学习虾", "emoji": "📚", "model": "Kimi-K2.5", "is_primary": false},
+    "business-shrimp": {"name": "商业虾", "emoji": "💼", "model": "Kimi-K2-Thinking", "is_primary": false},
+    "coding-shrimp": {"name": "编程虾", "emoji": "💻", "model": "Qwen3-Coder-Next", "is_primary": false},
+    "xianyu-shrimp": {"name": "闲鱼虾", "emoji": "🔍", "model": "Qwen3.5-Plus", "is_primary": false},
+    "image-shrimp": {"name": "画图虾", "emoji": "🎨", "model": "Qwen3.5-Plus", "is_primary": false},
+    "testing-shrimp": {"name": "测试虾", "emoji": "🧪", "model": "Qwen3.5-Plus", "is_primary": false}
+  },
+  "skill_agents": {
+    "trading-agents": "trading-shrimp",
+    "skill-creator": "main",
+    "super-websearch": "main",
+    "openviking-memory": "main",
+    "a-stock-trading": "trading-shrimp",
+    "performance": "main"
+  },
+  "display": {
+    "max_user_message_length": 150,
+    "max_tool_names": 5,
+    "session_active_minutes": 10,
+    "task_active_minutes": 10
+  },
+  "alerts": {
+    "enabled": true,
+    "channels": ["feishu"],
+    "feishu_webhook": "",
+    "email_to": "",
+    "email_from": "",
+    "smtp_server": "",
+    "smtp_password": "",
+    "webhook_url": "",
+    "rules": {
+      "agent_error": {"enabled": true, "severity": "high"},
+      "cron_failed": {"enabled": true, "severity": "high"},
+      "token_high": {"enabled": true, "threshold": 100000, "severity": "medium"},
+      "agent_idle_long": {"enabled": false, "threshold_hours": 24, "severity": "low"}
+    }
+  },
+  "export": {
+    "default_format": "json",
+    "default_days": 7,
+    "auto_export": false
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "agent-monitor",
+  "version": "1.0.1",
+  "description": "实时监控 OpenClaw Agent 状态、Token 消耗、定时任务",
+  "author": "小龙虾",
+  "license": "MIT",
+  "pricing": {
+    "model": "sponsor",
+    "suggested_amount": 50,
+    "currency": "CNY",
+    "message": "喜欢这个工具？请作者喝杯咖啡 ☕",
+    "sponsor_links": {
+      "wechat": "sponsor-wechat.jpg",
+      "alipay": ""
+    },
+    "features": "全部功能免费使用，赞助支持开发者持续维护"
+  },
+  "entry": "cli.py",
+  "triggers": ["/monitor", "/alerts", "/report"],
+  "dependencies": {
+    "python": ">=3.10",
+    "packages": ["requests"]
+  },
+  "tags": ["monitoring", "agent", "token", "alerts", "export"],
+  "homepage": "https://github.com/openclaw/agent-monitor",
+  "repository": "https://github.com/openclaw/agent-monitor"
+}
