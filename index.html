@@ -729,6 +729,17 @@
             // 渲染 Agent 卡片 (agents 是对象，需要转换为数组) - 先定义 agents
             const agents = data.agents ? Object.values(data.agents) : [];
             
+            // 排序：主 Agent 永远第一，其他按任务量降序
+            agents.sort((a, b) => {
+                const aIsMain = a.id === 'main';
+                const bIsMain = b.id === 'main';
+                if (aIsMain) return -1;
+                if (bIsMain) return 1;
+                const aTasks = (a.tasks || []).length;
+                const bTasks = (b.tasks || []).length;
+                return bTasks - aTasks;
+            });
+            
             // 渲染汇总
             const summary = data.summary || {};
             const totalTokens = agents.reduce((sum, a) => sum + (a.tokens_today || 0), 0);
