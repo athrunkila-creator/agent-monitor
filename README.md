@@ -1,108 +1,264 @@
-# Agent Monitor
+<div align="center">
 
-OpenClaw Agent 实时监控工具，支持状态监控、告警通知、数据导出。
+# 🦞 Agent Monitor
 
-## 功能特性
+### 实时监控你的 AI Agent 状态、Token 消耗、定时任务
 
-| 功能 | 说明 |
+**一目了然的状态面板 | 精确的 Token 统计 | 完整的任务队列**
+
+[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/athrunkila-creator/agent-monitor/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)]()
+
+[🚀 快速开始](#-快速开始) · [✨ 功能特性](#-功能特性) · [📸 截图展示](#-截图展示) · [🎁 赞助支持](#-赞助支持)
+
+</div>
+
+---
+
+## 😫 你是否也有这样的困扰？
+
+- 🤯 **多个 Agent 后台运行，不知道谁在忙？**
+  - 想看状态要一个一个查，太麻烦了
+
+- 💸 **Token 消耗莫名其妙，想查不知道在哪看？**
+  - 成本控制全靠猜，月底一看吓一跳
+
+- ⏰ **定时任务太多，记不住什么时候执行？**
+  - 任务失败也不知道，等到用户投诉才发现
+
+- 📱 **想随时随地查看状态，但没有好工具？**
+  - SSH 登录服务器太麻烦，手机上看不了
+
+**Agent Monitor 就是为解决这些问题而生的！** 🦞
+
+---
+
+## ✨ 功能特性
+
+### 📊 一目了然的状态面板
+
+10 个 Agent 状态实时展示，谁忙碌、谁空闲、谁有问题，一眼看清。
+
+| 状态 | 含义 |
 |------|------|
-| 实时监控 | Agent 状态、Token 消耗、任务进度 |
-| 告警通知 | 飞书、邮件、Webhook |
-| 数据导出 | CSV、JSON 格式 |
-| 周报生成 | 自动汇总分析 |
+| 🟢 活跃 | 正在工作，10分钟内有活动 |
+| 🟡 忙碌 | 正在执行任务，有工具调用 |
+| ⚪ 空闲 | 暂无任务，等待调度 |
 
-## 快速开始
+### 💰 精确的 Token 统计
 
-```bash
-# 显示当前状态
-python cli.py status
+- **每日消耗明细**：每个 Agent 的 Token 使用量
+- **累计消耗汇总**：总量一目了然
+- **成本可视化**：帮你的 AI 支出做预算
 
-# 检查告警
-python cli.py alerts
+### ⏰ 完整的任务队列
 
-# 导出数据
-python cli.py export --format json
+- 24 个定时任务状态监控
+- 下次执行时间预告
+- 任务执行结果追踪
+- 超过 3 条任务自动折叠，点击展开
 
-# 生成报告
-python cli.py report
-```
+### 🎨 精美的 Dashboard
 
-## 告警配置
+- **响应式设计**：手机、平板、电脑都能看
+- **深色主题**：护眼舒适，科技感满满
+- **一键刷新**：数据实时更新
+- **任务排序**：主 Agent 置顶，其他按任务量排序
 
-编辑 `config.json`:
+### 🌐 多种访问方式
 
-```json
-{
-  "alerts": {
-    "enabled": true,
-    "channels": ["feishu"],
-    "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx",
-    "rules": {
-      "agent_error": {"enabled": true, "severity": "high"},
-      "cron_failed": {"enabled": true, "severity": "high"},
-      "token_high": {"enabled": true, "threshold": 100000}
-    }
-  }
-}
-```
+- **本地访问**：`http://localhost:9001`
+- **公网访问**：支持 Tailscale Funnel
+- **移动端友好**：随时随地掌握全局
 
-### 告警规则
+---
 
-| 规则 | 说明 | 默认阈值 |
-|------|------|----------|
-| agent_error | Agent 发生错误 | - |
-| cron_failed | 定时任务失败 | - |
-| token_high | Token 消耗过高 | 100,000 |
-| agent_idle_long | Agent 长时间空闲 | 24小时 |
+## 🚀 快速开始
 
-## 命令参考
-
-### status - 显示状态
+### macOS 用户（推荐）
 
 ```bash
-python cli.py status          # 文本输出
-python cli.py status --json   # JSON 输出
+# 下载并解压
+unzip AgentMonitor-v1.0.1-macOS.zip
+
+# 双击运行 - 就这么简单！
+open AgentMonitor.app
 ```
 
-### alerts - 告警管理
+首次运行会自动：
+- ✅ 检测 Python 环境
+- ✅ 安装依赖包
+- ✅ 初始化数据
+- ✅ 打开浏览器
+
+### 命令行启动（所有平台）
 
 ```bash
-python cli.py alerts              # 检查告警
-python cli.py alerts --send       # 检查并发送
-python cli.py alerts --test-feishu  # 测试飞书
+# 克隆仓库
+git clone https://github.com/athrunkila-creator/agent-monitor.git
+cd agent-monitor
+
+# 安装依赖
+pip3 install requests
+
+# 启动服务
+python3 monitor.py  # 初始化数据
+python3 server.py   # 启动 Web 服务
+
+# 打开浏览器
+open http://localhost:9001
 ```
 
-### export - 导出数据
+---
 
-```bash
-python cli.py export              # JSON 格式，7天
-python cli.py export --format csv # CSV 格式
-python cli.py export --days 30    # 30天数据
+## 📸 截图展示
+
+### Dashboard 主界面
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  🦞 Agent Monitor                              [☕ 赞助支持]    │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
+│  │    1     │ │    24    │ │    2     │ │   3.1M   │          │
+│  │ 活跃主   │ │ 定时任务 │ │ 活跃子   │ │  Token   │          │
+│  │  Agent   │ │          │ │  Agent   │ │  消耗    │          │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  🦞 小龙虾                           状态: 🟡 忙碌              │
+│  ├── 模型: GLM-5                                                │
+│  ├── 会话: 4      Token: 534K     最后活动: 刚刚               │
+│  └── 待处理任务 (8)                                             │
+│      • 飞书上下文监控      0 9,15,21 * * *                      │
+│      • 每日摘要生成        0 0 * * *                            │
+│      • 飞书上下文检测      0 9,18 * * *                         │
+│      ...                                                        │
+│                                                                 │
+│  📚 学习虾                           状态: ⚪ 空闲              │
+│  ├── 模型: Kimi-K2.5                                            │
+│  ├── 会话: 58     Token: 2.67M    最后活动: 50分钟前           │
+│  └── 待处理任务 (6)                                             │
+│      • InStreet社区互动   every                                 │
+│      • 自主学习          0 2 * * *                              │
+│                                                                 │
+│  📈 交易虾                           状态: ⚪ 空闲              │
+│  └── 待处理任务 (4)  [显示更多 ▼]                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### report - 生成报告
+---
 
-```bash
-python cli.py report              # 7天报告
-python cli.py report --days 30    # 30天报告
-```
+## 🦞 支持的 Agent
 
-## 文件结构
+| Agent | 职责 | 状态 |
+|-------|------|------|
+| 🦞 小龙虾 | 主 Agent，任务调度 | ✅ |
+| 📈 交易虾 | 股票交易分析 | ✅ |
+| 📚 学习虾 | 社区学习 | ✅ |
+| 💻 编程虾 | 代码开发 | ✅ |
+| 🎨 画图虾 | 图片生成 | ✅ |
+| 🧪 测试虾 | 测试验证 | ✅ |
+| 📰 新闻虾 | 新闻播报 | ✅ |
+| 📊 行研虾 | 研究分析 | ✅ |
+| 💼 商业虾 | 商业分析 | ✅ |
+| 🔍 闲鱼虾 | 闲鱼捡漏 | ✅ |
+
+---
+
+## 🆚 为什么选择 Agent Monitor？
+
+| 对比项 | Agent Monitor | 手动查看日志 |
+|--------|--------------|-------------|
+| 实时性 | ✅ 实时刷新 | ❌ 需手动执行命令 |
+| 可视化 | ✅ 图形化界面 | ❌ 纯文本 |
+| 移动端 | ✅ 响应式设计 | ❌ 需 SSH |
+| 统计 | ✅ 自动汇总 | ❌ 手动计算 |
+| 部署 | ✅ 双击运行 | ❌ 配置复杂 |
+| 学习成本 | ✅ 零门槛 | ❌ 需要技术背景 |
+
+---
+
+## 🛠️ 技术栈
+
+- **后端**: Python 3.10+
+- **前端**: 原生 HTML/CSS/JavaScript（零依赖）
+- **数据**: JSON 文件存储
+- **部署**: 支持 macOS / Linux / Windows
+
+---
+
+## 📦 项目结构
 
 ```
 agent-monitor/
-├── cli.py           # 统一命令行入口
-├── monitor.py       # 核心监控模块
-├── alerts.py        # 告警通知模块
-├── export.py        # 数据导出模块
-├── config.json      # 配置文件
-├── data/            # 数据存储
-│   ├── monitor.db   # SQLite 数据库
-│   └── exports/     # 导出文件
-└── venv/            # Python 虚拟环境
+├── AgentMonitor.app/       # macOS 应用（双击运行）
+├── monitor.py              # 数据采集
+├── server.py               # Web 服务器
+├── index.html              # Dashboard
+├── config.json             # 配置文件
+├── alerts.py               # 告警模块
+└── export.py               # 数据导出
 ```
 
-## 版本历史
+---
 
-- v1.1.0 - 新增告警通知、数据导出功能
-- v1.0.0 - 基础监控功能
+## 🎁 赞助支持
+
+如果你觉得这个工具有用，欢迎请作者喝杯咖啡 ☕
+
+**赞助方式**：
+- 💰 见项目内 `sponsor-wechat.jpg`
+
+**建议 ¥50，支持持续维护**
+
+> 全部功能免费使用，赞助完全自愿！
+
+---
+
+## 📝 更新日志
+
+### v1.0.1 (2026-03-23)
+- ✨ Agent 按任务量排序
+- ✨ 主 Agent 永远置顶
+- ✨ 任务列表展开/收起
+- ✨ macOS 应用程序包
+
+### v1.0.0 (2026-03-23)
+- 🎉 首个正式版本发布
+- ✅ 10个 Agent 监控
+- ✅ Token 消耗统计
+- ✅ 定时任务监控
+- ✅ 响应式 Dashboard
+
+---
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+### 开发计划
+- [ ] 支持更多 OpenClaw 版本
+- [ ] 添加告警通知（飞书/邮件）
+- [ ] Windows 应用程序包
+- [ ] 国际化支持
+
+---
+
+## 📄 许可证
+
+[MIT License](LICENSE) - 自由使用，欢迎 Star ⭐
+
+---
+
+<div align="center">
+
+**Made with ❤️ by 小龙虾**
+
+如果这个项目对你有帮助，请给一个 ⭐ Star 支持一下！
+
+**[⬆ 返回顶部](#-agent-monitor)**
+
+</div>
