@@ -1,24 +1,8 @@
 {
   "agents": {
-    "agent-5": {
-      "name": "Agent 5",
-      "emoji": "🤖"
-    },
-    "agent-2": {
-      "name": "Agent 2",
-      "emoji": "🤖"
-    },
     "coding-shrimp": {
       "name": "编程虾",
       "emoji": "💻"
-    },
-    "agent-3": {
-      "name": "Agent 3",
-      "emoji": "🤖"
-    },
-    "agent-4": {
-      "name": "Agent 4",
-      "emoji": "🤖"
     },
     "learning-shrimp": {
       "name": "学习虾",
@@ -31,10 +15,6 @@
     "image-shrimp": {
       "name": "画图虾",
       "emoji": "🎨"
-    },
-    "agent": {
-      "name": "Agent",
-      "emoji": "🤖"
     },
     "testing-shrimp": {
       "name": "测试虾",
@@ -57,57 +37,5 @@
       "name": "新闻虾",
       "emoji": "📰"
     }
-  },
-  "skill_agents": {
-    "trading-agents": "trading-shrimp",
-    "skill-creator": "main",
-    "super-websearch": "main",
-    "openviking-memory": "main",
-    "a-stock-trading": "trading-shrimp",
-    "performance": "main"
-  },
-  "display": {
-    "max_user_message_length": 150,
-    "max_tool_names": 5,
-    "session_active_minutes": 10,
-    "task_active_minutes": 10,
-    "auto_detect_agents": true
-  },
-  "alerts": {
-    "enabled": true,
-    "channels": [
-      "feishu"
-    ],
-    "feishu_webhook": "",
-    "email_to": "",
-    "email_from": "",
-    "smtp_server": "",
-    "smtp_password": "",
-    "webhook_url": "",
-    "rules": {
-      "agent_error": {
-        "enabled": true,
-        "severity": "high"
-      },
-      "cron_failed": {
-        "enabled": true,
-        "severity": "high"
-      },
-      "token_high": {
-        "enabled": true,
-        "threshold": 100000,
-        "severity": "medium"
-      },
-      "agent_idle_long": {
-        "enabled": false,
-        "threshold_hours": 24,
-        "severity": "low"
-      }
-    }
-  },
-  "export": {
-    "default_format": "json",
-    "default_days": 7,
-    "auto_export": false
   }
 }

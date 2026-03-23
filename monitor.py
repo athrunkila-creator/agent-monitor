@@ -45,10 +45,29 @@ def detect_agents():
         
         agent_id = agent_dir.name
         
-        # 检查是否有 sessions 目录（确认是有效的 Agent）
+        # 检查是否为有效的 Agent：
+        # 1. 有 sessions 目录且有内容，或
+        # 2. 有 AGENT.md 配置文件
         sessions_dir = agent_dir / "sessions"
-        if not sessions_dir.exists():
-            continue
+        agent_md = agent_dir / "agent" / "AGENT.md"
+        
+        is_valid = False
+        
+        # 检查 sessions 目录是否有内容
+        if sessions_dir.exists():
+            try:
+                has_sessions = any(sessions_dir.iterdir())
+                if has_sessions:
+                    is_valid = True
+            except:
+                pass
+        
+        # 检查是否有 AGENT.md 配置文件
+        if not is_valid and agent_md.exists():
+            is_valid = True
+        
+        if not is_valid:
+            continue  # 跳过无效的 Agent 目录
         
         # 使用默认名称或生成名称
         if agent_id in DEFAULT_AGENT_NAMES:
