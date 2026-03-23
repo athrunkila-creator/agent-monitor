@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>🦞 Agent Monitor - 小龙虾监控面板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            font-size: 16px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: clamp(10px, 3vw, 20px);
+            overflow-x: hidden;
+        }
+        
+        /* 头部样式 */
+        .header {
+            text-align: center;
+            margin-bottom: clamp(20px, 5vw, 30px);
+        }
+        
+        .header h1 {
+            font-size: clamp(1.5em, 5vw, 2em);
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: clamp(0.8em, 2.5vw, 0.9em);
+        }
+        
+        .auto-refresh {
+            color: #4ecca3;
+            font-size: clamp(0.75em, 2vw, 0.85em);
+            margin-left: 10px;
+        }
+        
+        /* 汇总卡片 */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(100px, 25vw, 150px), 1fr));
+            gap: clamp(10px, 3vw, 15px);
+            margin-bottom: clamp(20px, 5vw, 30px);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .summary-card {
+            background: rgba(255,255,255,0.1);
+            padding: clamp(12px, 3vw, 20px);
+            border-radius: 12px;
+            text-align: center;
+            min-width: 0;
+        }
+        
+        .summary-card .value {
+            font-size: clamp(1.5em, 5vw, 2em);
+            font-weight: bold;
+            color: #4ecca3;
+            word-break: break-all;
+        }
+        
+        .summary-card.tokens .value {
+            color: #f9a825;
+        }
+        
+        .summary-card .label {
+            color: #888;
+            margin-top: 5px;
+            font-size: clamp(0.8em, 2.5vw, 0.9em);
+        }
+        
+        /* Agent 网格 - 响应式 */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+            gap: clamp(15px, 4vw, 20px);
+        }
+        
+        @media (max-width: 480px) {
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (min-width: 481px) and (max-width: 768px) {
+            .agents-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+        
+        /* Agent 卡片 */
+        .agent-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: clamp(15px, 4vw, 20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        
+        .agent-card:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-3px);
+        }
+        
+        .agent-card.active {
+            border-color: #4ecca3;
+            box-shadow: 0 0 15px rgba(78, 204, 163, 0.2);
+        }
+        
+        .agent-card.busy {
+            border-color: #f9a825;
+            box-shadow: 0 0 20px rgba(249, 168, 37, 0.3);
+        }
+        
+        /* Agent 头部 */
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .agent-name {
+            font-size: clamp(1em, 3vw, 1.2em);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .agent-avatar {
+            width: clamp(32px, 8vw, 40px);
+            height: clamp(32px, 8vw, 40px);
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .agent-card:hover .agent-avatar {
+            transform: scale(1.1);
+        }
+        
+        .agent-card.busy .agent-avatar {
+            animation: avatar-pulse 1.5s infinite;
+        }
+        
+        @keyframes avatar-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(0.8em, 2.5vw, 0.9em);
+            flex-shrink: 0;
+        }
+        
+        .status-dot {
+            width: clamp(8px, 2vw, 10px);
+            height: clamp(8px, 2vw, 10px);
+            border-radius: 50%;
+            background: #666;
+            flex-shrink: 0;
+        }
+        
+        .status-dot.active {
+            background: #4ecca3;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.busy {
+            background: #f9a825;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 当前任务 */
+        .current-task {
+            background: rgba(249, 168, 37, 0.15);
+            border: 1px solid rgba(249, 168, 37, 0.3);
+            border-radius: 10px;
+            padding: clamp(10px, 3vw, 12px);
+            margin-bottom: 15px;
+        }
+        
+        .current-task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .current-task-label {
+            font-size: clamp(0.75em, 2vw, 0.8em);
+            color: #f9a825;
+            font-weight: bold;
+        }
+        
+        .current-task-progress-text {
+            font-size: clamp(0.7em, 1.8vw, 0.75em);
+            color: #aaa;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .current-task-desc {
+            font-size: clamp(0.85em, 2.5vw, 0.9em);
+            color: #fff;
+            margin-bottom: 4px;
+            line-height: 1.4;
+            white-space: pre-line;
+            word-break: break-word;
+        }
+        
+        .current-task-tools {
+            font-size: clamp(0.75em, 2vw, 0.8em);
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .current-task-desc .task-line {
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .current-task-desc .tools-line {
+            color: #aaa;
+            font-size: 0.85em;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.1);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f9a825, #4ecca3);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Agent 信息网格 */
+        .agent-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            font-size: clamp(0.8em, 2.2vw, 0.9em);
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .info-label {
+            color: #888;
+            font-size: 0.85em;
+        }
+        
+        .info-value {
+            color: #fff;
+            word-break: break-all;
+        }
+        
+        .info-value.model {
+            font-size: 0.9em;
+        }
+        
+        /* 会话列表 */
+        .sessions-list {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sessions-title {
+            font-size: clamp(0.8em, 2.2vw, 0.9em);
+            color: #888;
+            margin-bottom: 10px;
+        }
+        
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: clamp(0.8em, 2.2vw, 0.9em);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .session-item:last-child {
+            border-bottom: none;
+        }
+        
+        .session-name {
+            color: #ccc;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .session-time {
+            color: #888;
+            font-size: 0.85em;
+            flex-shrink: 0;
+        }
+        
+        /* 刷新按钮 */
+        .refresh-btn {
+            position: fixed;
+            bottom: clamp(15px, 4vw, 30px);
+            right: clamp(15px, 4vw, 30px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: clamp(12px, 3vw, 16px) clamp(20px, 4vw, 24px);
+            border-radius: 50px;
+            font-size: clamp(0.85em, 2.5vw, 1em);
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 1000;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+        }
+        
+        .refresh-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        /* 缩放控制 */
+        .zoom-controls {
+            position: fixed;
+            bottom: clamp(15px, 4vw, 30px);
+            left: clamp(15px, 4vw, 30px);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+        
+        .zoom-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: clamp(36px, 8vw, 44px);
+            height: clamp(36px, 8vw, 44px);
+            border-radius: 50%;
+            font-size: clamp(1.2em, 3vw, 1.5em);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .zoom-level {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0 15px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            font-size: clamp(0.8em, 2vw, 0.9em);
+            min-width: 60px;
+            justify-content: center;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-size: clamp(1em, 3vw, 1.2em);
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: clamp(30px, 6vw, 40px);
+            height: clamp(30px, 6vw, 40px);
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #4ecca3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 错误提示 */
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px;
+        }
+        
+        /* 横屏优化 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .header {
+                margin-bottom: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .summary {
+                margin-bottom: 15px;
+            }
+            
+            .agents-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+        
+        /* 暗色模式优化 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0d0d1a 0%, #0a0f1f 100%);
+            }
+        }
+        
+        /* 减少动画（无障碍） */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🦞 Agent Monitor</h1>
+        <div class="timestamp">
+            <span id="lastUpdate">加载中...</span>
+            <span class="auto-refresh">● 自动刷新</span>
+        </div>
+    </div>
+    
+    <div class="summary" id="summary">
+        <div class="loading">
+            <div class="spinner"></div>
+            <div>加载中...</div>
+        </div>
+    </div>
+    
+    <div class="agents-grid" id="agents">
+    </div>
+    
+    <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+        <div class="zoom-level" id="zoomLevel">100%</div>
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+        <button class="zoom-btn" onclick="resetZoom()" title="重置">⟲</button>
+    </div>
+    
+    <button class="refresh-btn" onclick="refreshData()" id="refreshBtn">
+        🔄 刷新数据
+    </button>
+    
+    <button class="sponsor-btn" onclick="showSponsor()">
+        ☕ 赞助支持
+    </button>
+    
+    <!-- 赞助弹窗 -->
+    <div class="sponsor-modal" id="sponsorModal" onclick="hideSponsor()">
+        <div class="sponsor-content" onclick="event.stopPropagation()">
+            <button class="sponsor-close" onclick="hideSponsor()">✕</button>
+            <h2>☕ 请作者喝杯咖啡</h2>
+            <p class="sponsor-desc">如果你觉得这个工具有用，欢迎赞助支持持续维护！</p>
+            <img src="sponsor-wechat.jpg" alt="微信赞赏码" class="sponsor-qr">
+        </div>
+    </div>
+    
+    <style>
+        .sponsor-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #f9a825, #ff6f00);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(249, 168, 37, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .sponsor-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .sponsor-modal.show {
+            display: flex;
+        }
+        
+        .sponsor-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+            border: 2px solid rgba(249, 168, 37, 0.3);
+        }
+        
+        .sponsor-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .sponsor-content h2 {
+            color: #f9a825;
+            margin-bottom: 15px;
+        }
+        
+        .sponsor-desc {
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        
+        .sponsor-qr {
+            width: 400px;
+            height: 250px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .sponsor-hint {
+            color: #4ecca3;
+            margin-top: 10px;
+        }
+        
+        .sponsor-amount {
+            color: #f9a825;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+    </style>
+    
+    <script>
+        function showSponsor() {
+            document.getElementById('sponsorModal').classList.add('show');
+        }
+        
+        function hideSponsor() {
+            document.getElementById('sponsorModal').classList.remove('show');
+        }
+    </script>
+    
+    <script>
+        let currentZoom = 100;
+        const minZoom = 50;
+        const maxZoom = 200;
+        
+        function applyZoom() {
+            document.documentElement.style.fontSize = (currentZoom / 100 * 16) + 'px';
+            document.getElementById('zoomLevel').textContent = currentZoom + '%';
+        }
+        
+        function zoomIn() {
+            if (currentZoom < maxZoom) {
+                currentZoom += 10;
+                applyZoom();
+            }
+        }
+        
+        function zoomOut() {
+            if (currentZoom > minZoom) {
+                currentZoom -= 10;
+                applyZoom();
+            }
+        }
+        
+        function resetZoom() {
+            currentZoom = 100;
+            applyZoom();
+        }
+        
+        // 触摸缩放支持
+        let initialDistance = 0;
+        let initialZoom = 100;
+        
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) {
+                initialDistance = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+                initialZoom = currentZoom;
+            }
+        });
+        
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const currentDistance = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+                const scale = currentDistance / initialDistance;
+                currentZoom = Math.max(minZoom, Math.min(maxZoom, Math.round(initialZoom * scale)));
+                applyZoom();
+            }
+        });
+        
+        // 加载数据
+        async function loadData() {
+            try {
+                const response = await fetch('/data/realtime.json');
+                const data = await response.json();
+                render(data);
+            } catch (e) {
+                document.getElementById('agents').innerHTML = 
+                    '<div class="error">加载失败: ' + e.message + '</div>';
+            }
+        }
+        
+        function render(data) {
+            // 更新时间戳
+            document.getElementById('lastUpdate').textContent = 
+                '最后更新: ' + new Date().toLocaleString('zh-CN');
+            
+            // 渲染 Agent 卡片 (agents 是对象，需要转换为数组) - 先定义 agents
+            const agents = data.agents ? Object.values(data.agents) : [];
+            
+            // 渲染汇总
+            const summary = data.summary || {};
+            const totalTokens = agents.reduce((sum, a) => sum + (a.tokens_today || 0), 0);
+            document.getElementById('summary').innerHTML = `
+                <div class="summary-card">
+                    <div class="value">${summary.primary_active || 0}</div>
+                    <div class="label">活跃主 Agent</div>
+                </div>
+                <div class="summary-card">
+                    <div class="value">${summary.cron_jobs || 0}</div>
+                    <div class="label">定时任务</div>
+                </div>
+                <div class="summary-card">
+                    <div class="value">${summary.subagents_active || 0}/${summary.subagents || 0}</div>
+                    <div class="label">活跃子 Agent</div>
+                </div>
+                <div class="summary-card tokens">
+                    <div class="value">${(totalTokens / 1000).toFixed(1)}k</div>
+                    <div class="label">Token 消耗</div>
+                </div>
+            `;
+            document.getElementById('agents').innerHTML = agents.map(agent => {
+                const status = agent.status || 'idle';
+                const statusText = status === 'busy' ? '忙碌' : (status === 'active' ? '活跃' : '空闲');
+                const emoji = agent.emoji || '🦞';
+                const hasTask = agent.current_task && agent.current_task_text;
+                
+                return `
+                <div class="agent-card ${status}">
+                    <div class="agent-header">
+                        <div class="agent-name">
+                            <div class="agent-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5em;">${emoji}</div>
+                            ${agent.name}
+                        </div>
+                        <div class="agent-status">
+                            <span class="status-dot ${status}"></span>
+                            ${statusText}
+                        </div>
+                    </div>
+                    ${hasTask ? `
+                        <div class="current-task">
+                            <div class="current-task-header">
+                                <span class="current-task-label">当前任务</span>
+                                <span class="current-task-progress-text">${agent.current_task_progress || 0}%</span>
+                            </div>
+                            <div class="current-task-desc">${(agent.current_task || '').split('\n')[0].substring(0, 80)}${(agent.current_task || '').length > 80 ? '...' : ''}</div>
+                            <div class="current-task-tools">${agent.current_task_text || ''}</div>
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: ${agent.current_task_progress || 0}%"></div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div class="agent-info">
+                        <div class="info-item">
+                            <span class="info-label">模型</span>
+                            <span class="info-value model">${agent.model || '-'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">会话</span>
+                            <span class="info-value">${agent.sessions || 0}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">最后活动</span>
+                            <span class="info-value">${agent.last_activity_text || '-'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">今日Token</span>
+                            <span class="info-value">${agent.tokens_today || 0}</span>
+                        </div>
+                    </div>
+                    ${agent.tasks && agent.tasks.length > 0 ? `
+                        <div class="sessions-list">
+                            <div class="sessions-title">待处理任务 (${agent.tasks.length})</div>
+                            ${agent.tasks.slice(0, 3).map(t => `
+                                <div class="session-item">
+                                    <span class="session-name">${t.name}</span>
+                                    <span class="session-time">${t.next_run || ''}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `}).join('');
+        }
+        
+        async function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 刷新中...';
+            
+            try {
+                await fetch('/api/refresh', { method: 'POST' });
+                await loadData();
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄 刷新数据';
+            }
+        }
+        
+        // 初始加载
+        loadData();
+        
+        // 自动刷新
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>
